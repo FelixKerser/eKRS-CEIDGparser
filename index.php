@@ -1,6 +1,6 @@
 <div class="container">
 
-    <form method="post" action="parse.php">
+    <form method="post" action="test.php">
         <label for="miasto">Wpisz miasta</label>
         <input type="text" name="miasto">
 
