@@ -4,11 +4,11 @@ Made by Kyrylo Malovanyi
 
 ## Install required programms
 
-XAMMP
+XAMPP
 
-Java (add to PATH)
+Java 8 (add to PATH)
 
-Selenium
+JDK 11 (add to PATH)
 
 Chrome driver (add to PATH)
 
