@@ -83,7 +83,7 @@ set_time_limit(864000);
         $driver->executeScript("document.getElementById('szukaj').click();");
         $temporarily = $i + 1;
         $driver->executeScript("document.querySelectorAll('.daneSzczegolowe a')[".$temporarily."].click();");
-        $driver->executeScript("document.getElementsByClassName('big')[0].classList.add('nazwa');document.getElementsByClassName('big')[5].classList.add('nip');document.getElementsByClassName('big')[6].classList.add('miasto');document.getElementsByClassName('big')[7].classList.add('regon');document.getElementsByClassName('big')[10].classList.add('adresa');document.getElementsByClassName('big')[12].classList.add('pocztowykod');");
+        $driver->executeScript("document.getElementsByClassName('big')[0].classList.add('nazwa');document.getElementsByClassName('big')[5].classList.add('nip');document.getElementsByClassName('big')[6].classList.add('miasto');document.getElementsByClassName('big')[7].classList.add('regon');document.getElementsByClassName('big')[10].classList.add('adresa');document.getElementsByClassName('big')[12].classList.add('pocztowykod');document.getElementsByClassName('big')[1].classList.add('rejestr');document.getElementsByClassName('big')[2].classList.add('wojewodztwo');document.getElementsByClassName('big')[3].classList.add('krs');document.getElementsByClassName('big')[4].classList.add('powiat');document.getElementsByClassName('big')[6].classList.add('gmina');document.getElementsByClassName('big')[9].classList.add('formaprawna');document.getElementsByClassName('big')[14].classList.add('strona');document.getElementsByClassName('big')[16].classList.add('emailadres');");
         // sleep(15); 
         // Получение HTML содержимого страницы
         $html = $driver->getPageSource();
@@ -122,6 +122,16 @@ set_time_limit(864000);
                     $_pocztowykod;
                     $_nip;
                     $_regon;
+
+                    $_rejestr;
+                    $_krs;
+                    $_formaprawna;
+                    $_wojewodztwo;
+                    $_powiat;
+                    $_gmina;
+                    $_strona;
+                    $_emailadres;
+
                     foreach($table->find('.nazwa') as $element) {
                         $nazwa_content = $element->plaintext;
                         // echo '<div class="wynik">';
@@ -164,6 +174,47 @@ set_time_limit(864000);
                         // echo '</div>';
                         // echo '--------------';
                         $_regon = $nazwa_content;
+                    }
+
+
+                    foreach($table->find('.rejestr') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_rejestr = $nazwa_content;
+                    }
+
+                    foreach($table->find('.wojewodztwo') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_wojewodztwo = $nazwa_content;
+                    }
+
+                    foreach($table->find('.krs') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_krs = $nazwa_content;
+                    }
+
+                    foreach($table->find('.powiat') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_powiat = $nazwa_content;
+                    }
+
+                    foreach($table->find('.formaprawna') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_formaprawna = $nazwa_content;
+                    }
+
+                    foreach($table->find('.gmina') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_gmina = $nazwa_content;
+                    }
+
+                    foreach($table->find('.strona') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_strona = $nazwa_content;
+                    }
+
+                    foreach($table->find('.emailadres') as $element) {
+                        $nazwa_content = $element->plaintext;
+                        $_emailadres = $nazwa_content;
                     }
     
                                     $table_posts = 'wp_' . 'posts';
@@ -208,6 +259,14 @@ set_time_limit(864000);
                                     UNION ALL SELECT `ID`, '_kod_pocztowy', '". $_pocztowykod ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
                                     UNION ALL SELECT `ID`, '_nip', '". $_nip ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
                                     UNION ALL SELECT `ID`, '_regon', '". $_regon ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_rejestr', '". $_rejestr ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_krs', '". $_krs ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_formaprawna', '". $_formaprawna ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_wojewodztwo', '". $_wojewodztwo ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_powiat', '". $_powiat ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_gmina', '". $_gmina ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_strona', '". $_strona ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                                    UNION ALL SELECT `ID`, '_emailadres', '". $_emailadres ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
                                     ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
 
 
@@ -303,7 +362,7 @@ set_time_limit(864000);
                         for ($p = 0; $p < 19; $p++) {
                             $temporarily = $p + 1;
                             $driver->executeScript("document.querySelectorAll('.daneSzczegolowe a')[".$temporarily."].click();");
-                            $driver->executeScript("document.getElementsByClassName('big')[0].classList.add('nazwa');document.getElementsByClassName('big')[5].classList.add('nip');document.getElementsByClassName('big')[6].classList.add('miasto');document.getElementsByClassName('big')[7].classList.add('regon');document.getElementsByClassName('big')[10].classList.add('adresa');document.getElementsByClassName('big')[12].classList.add('pocztowykod');");
+                            $driver->executeScript("document.getElementsByClassName('big')[0].classList.add('nazwa');document.getElementsByClassName('big')[5].classList.add('nip');document.getElementsByClassName('big')[6].classList.add('miasto');document.getElementsByClassName('big')[7].classList.add('regon');document.getElementsByClassName('big')[10].classList.add('adresa');document.getElementsByClassName('big')[12].classList.add('pocztowykod');document.getElementsByClassName('big')[1].classList.add('rejestr');document.getElementsByClassName('big')[2].classList.add('wojewodztwo');document.getElementsByClassName('big')[3].classList.add('krs');document.getElementsByClassName('big')[4].classList.add('powiat');document.getElementsByClassName('big')[6].classList.add('gmina');document.getElementsByClassName('big')[9].classList.add('formaprawna');document.getElementsByClassName('big')[14].classList.add('strona');document.getElementsByClassName('big')[16].classList.add('emailadres');");
                             $htmlnew = $driver->getPageSource();
                             echo '<div class="parser">';
                             echo $htmlnew;
@@ -320,6 +379,16 @@ set_time_limit(864000);
                                 $_pocztowykod;
                                 $_nip;
                                 $_regon;
+                                
+                                $_rejestr;
+                                $_krs;
+                                $_formaprawna;
+                                $_wojewodztwo;
+                                $_powiat;
+                                $_gmina;
+                                $_strona;
+                                $_emailadres;
+
                                 foreach($table->find('.nazwa') as $element) {
                                     $nazwa_content = $element->plaintext;
                                     // echo '<div class="wynik">';
@@ -363,6 +432,46 @@ set_time_limit(864000);
                                     // echo '--------------';
                                     $_regon = $nazwa_content;
                                 }
+
+                                foreach($table->find('.rejestr') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_rejestr = $nazwa_content;
+                                }
+            
+                                foreach($table->find('.wojewodztwo') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_wojewodztwo = $nazwa_content;
+                                }
+            
+                                foreach($table->find('.krs') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_krs = $nazwa_content;
+                                }
+            
+                                foreach($table->find('.powiat') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_powiat = $nazwa_content;
+                                }
+            
+                                foreach($table->find('.formaprawna') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_formaprawna = $nazwa_content;
+                                }
+            
+                                foreach($table->find('.gmina') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_gmina = $nazwa_content;
+                                }
+            
+                                foreach($table->find('.strona') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_strona = $nazwa_content;
+                                }
+            
+                                foreach($table->find('.emailadres') as $element) {
+                                    $nazwa_content = $element->plaintext;
+                                    $_emailadres = $nazwa_content;
+                                }
                 
                                                 $table_posts = 'wp_' . 'posts';
                                                 $table_postmeta = 'wp_' . 'postmeta';
@@ -399,14 +508,22 @@ set_time_limit(864000);
                                                 WHERE ID = LAST_INSERT_ID();
                                                 ", $currentDateTime, $currentDateTime, $_nazwa);
                 
-                                                $sql_insert_meta = "
-                                                INSERT INTO `wp_postmeta` (`post_id`, `meta_key`, `meta_value`) 
-                                                SELECT `ID`, '_miasto', '". $_miasto ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                                UNION ALL SELECT `ID`, '_adresa', '". $_adresa ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                                UNION ALL SELECT `ID`, '_kod_pocztowy', '". $_pocztowykod ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                                UNION ALL SELECT `ID`, '_nip', '". $_nip ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                                UNION ALL SELECT `ID`, '_regon', '". $_regon ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                                ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
+                $sql_insert_meta = "
+                INSERT INTO `wp_postmeta` (`post_id`, `meta_key`, `meta_value`) 
+                SELECT `ID`, '_miasto', '". $_miasto ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_adresa', '". $_adresa ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_kod_pocztowy', '". $_pocztowykod ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_nip', '". $_nip ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_regon', '". $_regon ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_rejestr', '". $_rejestr ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_krs', '". $_krs ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_formaprawna', '". $_formaprawna ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_wojewodztwo', '". $_wojewodztwo ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_powiat', '". $_powiat ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_gmina', '". $_gmina ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_strona', '". $_strona ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_emailadres', '". $_emailadres ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
 
                                                 echo $sql_insert_post;
                                                 echo '<br/>';
