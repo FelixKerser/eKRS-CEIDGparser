@@ -213,7 +213,10 @@ function parse($miasto, $gmina, $przedsiebiorca, $stowarzyszenia, $wojewodztwo){
                                     ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_adresa', '". $_adresa ."'),
                                     ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_kod_pocztowy', '". $_pocztowykod ."'),
                                     ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_nip', '". $_nip ."'),
-                                    ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_regon', '". $_regon ."') ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
+                                    ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_regon', '". $_regon ."'),
+                                    ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_yoast_wpseo_title', '". $_title ."'),
+                                    ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_yoast_wpseo_metadesc', '". $_description ."'),
+                                    ((SELECT `ID` FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'), '_yoast_wpseo_focuskw', '". $_keywords ."') ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
 
                                 echo $sql_insert_post;
                                 echo '<br/>';

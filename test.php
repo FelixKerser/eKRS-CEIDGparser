@@ -39,6 +39,46 @@ set_time_limit(864000);
     
         return $guid;
     }
+
+    function sanitize_title_custom($title) {
+        // Массив соответствия польских символов латинским
+        $transliteration_table = array(
+            'ą' => 'a', 'ć' => 'c', 'ę' => 'e', 'ł' => 'l', 'ń' => 'n',
+            'ó' => 'o', 'ś' => 's', 'ź' => 'z', 'ż' => 'z',
+            'Ą' => 'A', 'Ć' => 'C', 'Ę' => 'E', 'Ł' => 'L', 'Ń' => 'N',
+            'Ó' => 'O', 'Ś' => 'S', 'Ź' => 'Z', 'Ż' => 'Z'
+        );
+        // Производим транслитерацию
+        $title = strtr($title, $transliteration_table);
+        // Удаляем диакритические знаки из оставшихся символов
+        $title = preg_replace('/[\pM\p{Sk}]+/u', '', $title);
+        // Заменяем неалфавитно-цифровые символы на пробелы
+        $title = preg_replace('/[^\p{L}\p{N}\s-]/u', ' ', $title);
+        // Заменяем последовательности пробелов и дефисов на одиночные дефисы
+        $title = preg_replace('/[\s-]+/', ' ', $title);
+        // Удаляем пробелы в начале и конце строки
+        $title = trim($title);
+        // Преобразуем в нижний регистр
+        $title = mb_strtolower($title, 'UTF-8');
+        // Заменяем пробелы на дефисы
+        $title = str_replace(' ', '-', $title);
+        return $title;
+    }
+
+    function escape_single_quotes($string) {
+        return str_replace("'", "\'", $string);
+    }
+
+    function remove_quotes($input_string) {
+        // Удаление кавычек из начала и конца строки, если они есть
+        if (substr($input_string, 0, 1) === "'" && substr($input_string, -1) === "'") {
+            return substr($input_string, 1, -1);
+        } elseif (substr($input_string, 0, 1) === '"' && substr($input_string, -1) === '"') {
+            return substr($input_string, 1, -1);
+        } else {
+            return $input_string;
+        }
+    }
     
 
     function parse($miasto, $gmina, $przedsiebiorca, $stowarzyszenia, $wojewodztwo){
@@ -54,10 +94,6 @@ set_time_limit(864000);
         // sleep(3); 
     
         $wait->until(WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::tagName('body')));
-
-        for ($i = 0; $i < 19; $i++) {
-    
-    
         if($miasto != ''){
             $driver->executeScript("document.getElementById('miejscowosc').setAttribute('value', '". $miasto ."');");
         }
@@ -81,6 +117,10 @@ set_time_limit(864000);
         // $driver->executeScript("document.getElementById('rejestrPrzedsiebiorcy').setAttribute('checked', true);");
         $driver->executeScript("document.getElementById('form').submit();");
         $driver->executeScript("document.getElementById('szukaj').click();");
+        for ($i = 0; $i < 19; $i++) {
+    
+    
+
         $temporarily = $i + 1;
         $driver->executeScript("document.querySelectorAll('.daneSzczegolowe a')[".$temporarily."].click();");
         $driver->executeScript("document.getElementsByClassName('big')[0].classList.add('nazwa');document.getElementsByClassName('big')[5].classList.add('nip');document.getElementsByClassName('big')[6].classList.add('miasto');document.getElementsByClassName('big')[7].classList.add('regon');document.getElementsByClassName('big')[10].classList.add('adresa');document.getElementsByClassName('big')[12].classList.add('pocztowykod');document.getElementsByClassName('big')[1].classList.add('rejestr');document.getElementsByClassName('big')[2].classList.add('wojewodztwo');document.getElementsByClassName('big')[3].classList.add('krs');document.getElementsByClassName('big')[4].classList.add('powiat');document.getElementsByClassName('big')[6].classList.add('gmina');document.getElementsByClassName('big')[9].classList.add('formaprawna');document.getElementsByClassName('big')[14].classList.add('strona');document.getElementsByClassName('big')[16].classList.add('emailadres');");
@@ -89,11 +129,11 @@ set_time_limit(864000);
         $html = $driver->getPageSource();
     
         // Вывод HTML содержимого
-        echo '<div class="parser">';
-        echo "------------------";
-        echo $html;
-        echo "------------------";
-        echo '</div>';
+        // echo '<div class="parser">';
+        // echo "------------------";
+        // echo $html;
+        // echo "------------------";
+        // echo '</div>';
     
     
     
@@ -133,7 +173,7 @@ set_time_limit(864000);
                     $_emailadres;
 
                     foreach($table->find('.nazwa') as $element) {
-                        $nazwa_content = $element->plaintext;
+                        $nazwa_content = escape_single_quotes($element->plaintext);
                         // echo '<div class="wynik">';
                         // echo 'Nazwa firmy: '.$nazwa_content;
                         // echo '</div>';
@@ -226,7 +266,7 @@ set_time_limit(864000);
                                     // Получаем текущую дату и время
                                     $currentDateTime = date('Y-m-d H:i:s');
     
-                                    $sql_insert_post = sprintf("INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (NULL, '1', '%s', '%s', '', '%s', '', 'publish', 'open', 'open', '', LAST_INSERT_ID(), '', '', '0000-00-00 00:00:00.000000', '0000-00-00 00:00:00.000000', '', '0', '', '0', 'firmy', '', '0') ON DUPLICATE KEY UPDATE 
+                                    $sql_insert_post = sprintf("INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (NULL, '1', '%s', '%s', '', '%s', '', 'publish', 'open', 'open', '', '%s', '', '', '0000-00-00 00:00:00.000000', '0000-00-00 00:00:00.000000', '', '0', '', '0', 'firmy', '', '0') ON DUPLICATE KEY UPDATE 
                                     `post_author` = VALUES(`post_author`), 
                                     `post_date` = VALUES(`post_date`), 
                                     `post_date_gmt` = VALUES(`post_date_gmt`), 
@@ -247,33 +287,34 @@ set_time_limit(864000);
                                     `post_type` = VALUES(`post_type`), 
                                     `post_mime_type` = VALUES(`post_mime_type`), 
                                     `comment_count` = VALUES(`comment_count`);
-                                    UPDATE wp_posts
-                                    SET guid = CONCAT((SELECT option_value FROM wp_options WHERE option_name = 'siteurl'), 'firmy/?p=', LAST_INSERT_ID())
-                                    WHERE ID = LAST_INSERT_ID();
-                                    ", $currentDateTime, $currentDateTime, $_nazwa);
-    
-                                    $sql_insert_meta = "
-                                    INSERT INTO `wp_postmeta` (`post_id`, `meta_key`, `meta_value`) 
-                                    SELECT `ID`, '_miasto', '". $_miasto ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_adresa', '". $_adresa ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_kod_pocztowy', '". $_pocztowykod ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_nip', '". $_nip ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_regon', '". $_regon ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_rejestr', '". $_rejestr ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_krs', '". $_krs ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_formaprawna', '". $_formaprawna ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_wojewodztwo', '". $_wojewodztwo ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_powiat', '". $_powiat ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_gmina', '". $_gmina ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_strona', '". $_strona ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    UNION ALL SELECT `ID`, '_emailadres', '". $_emailadres ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
-                                    ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
+                                    ", $currentDateTime, $currentDateTime, $_nazwa, sanitize_title_custom($_nazwa));
 
+    $sql_insert_meta = "
+    INSERT INTO `wp_postmeta` (`post_id`, `meta_key`, `meta_value`) 
+    SELECT `ID`, '_miasto', '". $_miasto ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_adresa', '". $_adresa ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_kod_pocztowy', '". $_pocztowykod ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_nip', '". $_nip ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_regon', '". $_regon ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_rejestr', '". $_rejestr ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_krs', '". $_krs ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_formaprawna', '". $_formaprawna ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_wojewodztwo', '". $_wojewodztwo ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_powiat', '". $_powiat ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_gmina', '". $_gmina ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_strona', '". $_strona ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_emailadres', '". $_emailadres ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_yoast_wpseo_title', 'Opinie ". $_nazwa ." ".$_miasto."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_yoast_wpseo_metadesc', 'Sprawdź opinie o ". $_nazwa .". ".$_miasto.". Informacje o zarobkach, kadrze zarządzającej, atmosferze !' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    UNION ALL SELECT `ID`, '_yoast_wpseo_focuskw', 'Opinie o ". $_nazwa ." ".$_miasto."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+    ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
 
-                                    echo $sql_insert_post;
-                                    echo '<br/>';
-                                    echo $sql_insert_meta;
-                                    echo '<br/>';
+                                    // echo $sql_insert_post;
+                                    // echo '';
+                                    // echo $sql_insert_meta;
+                                    // echo '';
+                                    $file_content = $sql_insert_post . "\n" . $sql_insert_meta;
+                                    file_put_contents('wynik.txt', $file_content, FILE_APPEND);
     
                         
                 }
@@ -364,9 +405,9 @@ set_time_limit(864000);
                             $driver->executeScript("document.querySelectorAll('.daneSzczegolowe a')[".$temporarily."].click();");
                             $driver->executeScript("document.getElementsByClassName('big')[0].classList.add('nazwa');document.getElementsByClassName('big')[5].classList.add('nip');document.getElementsByClassName('big')[6].classList.add('miasto');document.getElementsByClassName('big')[7].classList.add('regon');document.getElementsByClassName('big')[10].classList.add('adresa');document.getElementsByClassName('big')[12].classList.add('pocztowykod');document.getElementsByClassName('big')[1].classList.add('rejestr');document.getElementsByClassName('big')[2].classList.add('wojewodztwo');document.getElementsByClassName('big')[3].classList.add('krs');document.getElementsByClassName('big')[4].classList.add('powiat');document.getElementsByClassName('big')[6].classList.add('gmina');document.getElementsByClassName('big')[9].classList.add('formaprawna');document.getElementsByClassName('big')[14].classList.add('strona');document.getElementsByClassName('big')[16].classList.add('emailadres');");
                             $htmlnew = $driver->getPageSource();
-                            echo '<div class="parser">';
-                            echo $htmlnew;
-                            echo '</div>';
+                            // echo '<div class="parser">';
+                            // echo $htmlnew;
+                            // echo '</div>';
             
                             $domnew = str_get_html($htmlnew);
             
@@ -390,7 +431,7 @@ set_time_limit(864000);
                                 $_emailadres;
 
                                 foreach($table->find('.nazwa') as $element) {
-                                    $nazwa_content = $element->plaintext;
+                                    $nazwa_content = escape_single_quotes($element->plaintext);
                                     // echo '<div class="wynik">';
                                     // echo 'Nazwa firmy: '.$nazwa_content;
                                     // echo '</div>';
@@ -401,14 +442,14 @@ set_time_limit(864000);
                                     // echo '<div class="wynik">';
                                     // echo 'Miasto: '.$nazwa_content;
                                     // echo '</div>';
-                                    $_miasto = $nazwa_content;
+                                    $_miasto = remove_quotes($nazwa_content);
                                 }
                                 foreach($table->find('.adresa') as $element) {
                                     $nazwa_content = $element->plaintext;
                                     // echo '<div class="wynik">';
                                     // echo 'Adresa: '.$nazwa_content;
                                     // echo '</div>';
-                                    $_adresa = $nazwa_content;
+                                    $_adresa = remove_quotes($nazwa_content);
                                 }
                                 foreach($table->find('.pocztowykod') as $element) {
                                     $nazwa_content = $element->plaintext;
@@ -482,7 +523,7 @@ set_time_limit(864000);
                                                 // Получаем текущую дату и время
                                                 $currentDateTime = date('Y-m-d H:i:s');
                 
-                                                $sql_insert_post = sprintf("INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (NULL, '1', '%s', '%s', '', '%s', '', 'publish', 'open', 'open', '', LAST_INSERT_ID(), '', '', '0000-00-00 00:00:00.000000', '0000-00-00 00:00:00.000000', '', '0', '', '0', 'firmy', '', '0') ON DUPLICATE KEY UPDATE 
+                                                $sql_insert_post = sprintf("INSERT INTO `wp_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES (NULL, '1', '%s', '%s', '', '%s', '', 'publish', 'open', 'open', '', '%s', '', '', '0000-00-00 00:00:00.000000', '0000-00-00 00:00:00.000000', '', '0', '', '0', 'firmy', '', '0') ON DUPLICATE KEY UPDATE 
                                                 `post_author` = VALUES(`post_author`), 
                                                 `post_date` = VALUES(`post_date`), 
                                                 `post_date_gmt` = VALUES(`post_date_gmt`), 
@@ -503,10 +544,7 @@ set_time_limit(864000);
                                                 `post_type` = VALUES(`post_type`), 
                                                 `post_mime_type` = VALUES(`post_mime_type`), 
                                                 `comment_count` = VALUES(`comment_count`);
-                                                UPDATE wp_posts
-                                                SET guid = CONCAT((SELECT option_value FROM wp_options WHERE option_name = 'siteurl'), 'firmy/?p=', LAST_INSERT_ID())
-                                                WHERE ID = LAST_INSERT_ID();
-                                                ", $currentDateTime, $currentDateTime, $_nazwa);
+                                                ", $currentDateTime, $currentDateTime, $_nazwa, sanitize_title_custom($_nazwa));
                 
                 $sql_insert_meta = "
                 INSERT INTO `wp_postmeta` (`post_id`, `meta_key`, `meta_value`) 
@@ -523,12 +561,17 @@ set_time_limit(864000);
                 UNION ALL SELECT `ID`, '_gmina', '". $_gmina ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
                 UNION ALL SELECT `ID`, '_strona', '". $_strona ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
                 UNION ALL SELECT `ID`, '_emailadres', '". $_emailadres ."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_yoast_wpseo_title', 'Opinie ". $_nazwa ." ".$_miasto."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_yoast_wpseo_metadesc', 'Sprawdź opinie o ". $_nazwa .". ".$_miasto.". Informacje o zarobkach, kadrze zarządzającej, atmosferze !' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
+                UNION ALL SELECT `ID`, '_yoast_wpseo_focuskw', 'Opinie o ". $_nazwa ." ".$_miasto."' FROM `wp_posts` WHERE `post_title` = '". $_nazwa ."'
                 ON DUPLICATE KEY UPDATE `post_id` = VALUES(`post_id`), `meta_key` = VALUES(`meta_key`), `meta_value` = VALUES(`meta_value`);";
 
-                                                echo $sql_insert_post;
-                                                echo '<br/>';
-                                                echo $sql_insert_meta;
-                                                echo '<br/>';
+                                    // echo $sql_insert_post;
+                                    // echo '';
+                                    // echo $sql_insert_meta;
+                                    // echo '';
+                                    $file_content = $sql_insert_post . "\n" . $sql_insert_meta;
+                                    file_put_contents('wynik.txt', $file_content, FILE_APPEND);
                 
                             
                                     }
@@ -723,5 +766,10 @@ set_time_limit(864000);
             parse('', '', $_POST['rejestrPrzedsiebiorcy'], '1', $wojewodztwo);
         }
     }
+
+    file_put_contents('wynik.txt', "DELETE p1 FROM wp_posts p1 
+    JOIN wp_posts p2 ON LOWER(p1.post_title) = LOWER(p2.post_title) 
+    WHERE p1.post_type = 'firmy' AND p2.post_type = 'firmy' AND p1.ID < p2.ID;
+    ", FILE_APPEND);
 ?>
 
